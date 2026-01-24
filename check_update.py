@@ -23,7 +23,7 @@ def check():
             last_sha = ""
 
         if latest_commit_sha != last_sha:
-            send_tg_message("🚨 Оновлено дані по відключеннях у Тернополі!")
+            send_tg_message("https://raw.githubusercontent.com/yaroslav2901/OE_OUTAGE_DATA/refs/heads/main/images/Ternopiloblenerho/gpv-1-2-emergency.png")
             # Зберігаємо новий хеш
             with open("last_sha.txt", "w") as f:
                 f.write(latest_commit_sha)
