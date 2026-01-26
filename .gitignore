@@ -113,3 +113,8 @@ Temporary Items
 *.iml
 out
 gen
+/vendor/
+/.phpunit.result.cache
+/package.xml
+/cache/
+/config/groups.local.php

@@ -1,0 +1,19 @@
+{
+  "name": "power/outages",
+  "require": {
+    "php": "^8.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^12.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "PowerOutages\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "PowerOutages\\Tests\\": "tests/"
+    }
+  }
+}
