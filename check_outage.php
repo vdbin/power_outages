@@ -1,7 +1,21 @@
 <?php
+date_default_timezone_set('Europe/Kyiv');
+
+function logLine(string $message): void
+{
+    $ts = date('Y-m-d H:i:s');
+    echo "[{$ts}] {$message}\n";
+}
+
+function fatal(string $message, int $exitCode = 1): void
+{
+    logLine($message);
+    exit($exitCode);
+}
+
 $groupsConfigPath = __DIR__ . '/config/groups.local.php';
 if (!file_exists($groupsConfigPath)) {
-    die("Не знайдено конфігурацію груп: {$groupsConfigPath}\n");
+    fatal("Не знайдено конфігурацію груп: {$groupsConfigPath}");
 }
 
 $groupsConfig = require $groupsConfigPath;
@@ -14,7 +28,7 @@ if ($test) {
     $jsonPath = __DIR__ . "/tests/example.json";
     $response = file_get_contents($jsonPath);
     if ($response === false) {
-        die("Не вдалося прочитати файл: $jsonPath\n");
+        fatal("Не вдалося прочитати файл: $jsonPath");
     }
 } else {
     $ch = curl_init($jsonUrl);
@@ -26,7 +40,7 @@ if ($test) {
 $data = json_decode($response, true);
 
 if (!$data || !isset($data['fact']['update'])) {
-    die("Помилка JSON\n");
+    fatal("Помилка JSON");
 }
 
 $currentUpdateText = $data['fact']['update'];
@@ -34,7 +48,7 @@ $lastUpdateText = file_exists($cacheFile) ? trim(file_get_contents($cacheFile)) 
 
 if (!$test) {
     if ($currentUpdateText === $lastUpdateText) {
-        echo "Оновлень немає.\n";
+        logLine("Оновлень немає.");
         exit;
     }
 }
@@ -93,10 +107,10 @@ foreach ($groupsConfig as $targetGroup => $config) {
                         'parse_mode' => 'HTML',
                         'disable_web_page_preview' => true
                     ]));
-                echo "Надіслано для $targetGroup\n";
+                logLine("Надіслано для $targetGroup");
                 file_put_contents($cacheFileMessage, $filePutMessage);
             } else {
-                echo "Оновлень немає для {$targetGroup}\n";
+                logLine("Оновлень немає для {$targetGroup}");
             }
         }
     }
