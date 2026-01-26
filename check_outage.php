@@ -44,11 +44,12 @@ if (!$data || !isset($data['fact']['update'])) {
 }
 
 $currentUpdateText = $data['fact']['update'];
-$lastUpdateText = file_exists($cacheFile) ? trim(file_get_contents($cacheFile)) : "";
+$lastUpdatedFromJson = $data['lastUpdated'];
+$lastUpdateFromFile = file_exists($cacheFile) ? trim(file_get_contents($cacheFile)) : "";
 
 if (!$test) {
-    if ($currentUpdateText === $lastUpdateText) {
-        logLine("Оновлень немає.");
+    if ($lastUpdatedFromJson === $lastUpdateFromFile) {
+        logLine("Оновлень немає");
         exit;
     }
 }
@@ -91,15 +92,17 @@ foreach ($groupsConfig as $targetGroup => $config) {
         $cacheFileMessage = __DIR__ . "/cache/last_schedule_{$targetGroup}.txt";
         $lastTimeMessage = file_exists($cacheFileMessage) ? trim(file_get_contents($cacheFileMessage)) : "";
 
-        if (!$test) {
-            if ($filePutMessage !== $lastTimeMessage) {
-                if ($targetGroup != "GPV4.1") {
-                    $message .= "🔗 <a href='https://www.toe.com.ua/news/71'>Сайт TOE</a>\n";
-                }
-                $titleTargetGroup = str_replace('GPV', '', $targetGroup);
-                $message .= "ℹ️ Оновлено ({$titleTargetGroup})\n";
-                $message .= "ℹ️ " . date("H:i d.m");
+        if ($targetGroup != "GPV4.1") {
+            $message .= "🔗 <a href='https://www.toe.com.ua/news/71'>Сайт TOE</a>\n";
+        }
+        $titleTargetGroup = str_replace('GPV', '', $targetGroup);
+        $message .= "ℹ️ Оновлено ({$titleTargetGroup})\n";
+        $message .= "ℹ️ " . $currentUpdateText;
 
+        if ($test) {
+            print_r($message."\n\n\n");
+        } else {
+            if ($filePutMessage !== $lastTimeMessage) {
                 $tgUrl = "https://api.telegram.org/bot{$config['token']}/sendMessage";
                 file_get_contents($tgUrl . "?" . http_build_query([
                         'chat_id' => $config['chat_id'],
@@ -116,4 +119,4 @@ foreach ($groupsConfig as $targetGroup => $config) {
     }
 }
 
-file_put_contents($cacheFile, $currentUpdateText);
+file_put_contents($cacheFile, $lastUpdatedFromJson);
