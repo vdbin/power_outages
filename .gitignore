@@ -118,3 +118,4 @@ gen
 /package.xml
 /cache/
 /config/groups.local.php
+/logs/cron.log
