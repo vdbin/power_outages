@@ -9,6 +9,7 @@ final class ToeOutageParser
     public static function fetchChergGpvGroups(string $cityId): array
     {
         $url = "https://api-toe-poweron.inneti.net/api/pw-accounts/building-groups?cityId={$cityId}";
+//        $data = ['buildingGroups' => [['chergGpv' => '1.2#Пд']]];
         $data = self::fetchJson($url, array('Origin: https://toe-poweron.inneti.net'));
         if (!isset($data['buildingGroups']) || !is_array($data['buildingGroups'])) {
             throw new RuntimeException('Unexpected building groups response');

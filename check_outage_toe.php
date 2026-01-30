@@ -143,9 +143,14 @@ foreach ($groupTargets as $target) {
         $cacheFileMessage = __DIR__ . "/cache/last_schedule_{$configKey}.txt";
         $lastTimeMessage = file_exists($cacheFileMessage) ? trim(file_get_contents($cacheFileMessage)) : '';
 
-        $message .= "ℹ️ Оновлено ({$configKey})\n";
+        $message .= "🔗 <a href='https://www.toe.com.ua/news/71'>Сайт TOE</a>\n";
+        $titleTargetGroup = str_replace('GPV', '', $configKey);
+        $message .= "ℹ️ Оновлено ({$titleTargetGroup})\n";
         if ($latestDateCreate !== '') {
-            $message .= "ℹ️ {$latestDateCreate}";
+            $latestDateObj = new DateTime($latestDateCreate);
+            $latestDateObj->setTimezone(new DateTimeZone('Europe/Kyiv'));
+            $latestDateStr = $latestDateObj->format('d.m H:i');
+            $message .= "ℹ️ {$latestDateStr}";
         }
 
         if ($filePutMessage !== $lastTimeMessage) {
