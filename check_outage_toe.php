@@ -115,21 +115,46 @@ foreach ($groupTargets as $target) {
     $configKey = $target['config'];
     $config = $groupsConfig[$configKey];
     $message = '';
+    $filePutMessage = '';
     $hasData = false;
 
     if (isset($schedulesByTarget[$configKey])) {
         ksort($schedulesByTarget[$configKey]);
+
+        $tzKyiv = new DateTimeZone('Europe/Kyiv');
+        $cutoff = new DateTime('now', $tzKyiv);
+        $cutoff->modify('-2 hour');
+
         foreach ($schedulesByTarget[$configKey] as $dayTs => $intervals) {
             $dateObj = new DateTime("@{$dayTs}");
-            $dateObj->setTimezone(new DateTimeZone('Europe/Kyiv'));
+            $dateObj->setTimezone($tzKyiv);
             $dayName = $weekDays[$dateObj->format('w')];
             $dateStr = $dateObj->format('d.m');
 
+            $filteredIntervals = array();
+            $filePutMessage .= $dateStr;
+            foreach ($intervals as $interval) {
+                $filePutMessage .= $interval;
+                if (!preg_match('/^\s*\d{1,2}:\d{2}\s*-\s*(\d{1,2}):(\d{2})\s*$/u', $interval, $m)) {
+                    continue;
+                }
+
+                $endHour = (int)$m[1];
+                $endMin = (int)$m[2];
+
+                $endDateTime = clone $dateObj;
+                $endDateTime->setTime($endHour, $endMin, 0);
+
+                if ($endDateTime > $cutoff) {
+                    $filteredIntervals[] = $interval;
+                }
+            }
+
             $message .= "<b>{$dateStr} ({$dayName}):</b>\n";
-            if (empty($intervals)) {
+            if (empty($filteredIntervals)) {
                 $message .= "🟢 Відключень не заплановано\n";
             } else {
-                foreach ($intervals as $interval) {
+                foreach ($filteredIntervals as $interval) {
                     $message .= "🔴 <b>{$interval}</b>\n";
                 }
             }
@@ -139,7 +164,7 @@ foreach ($groupTargets as $target) {
     }
 
     if ($hasData) {
-        $filePutMessage = trim(base64_encode($message));
+        $filePutMessage64 = trim(base64_encode($filePutMessage));
         $cacheFileMessage = __DIR__ . "/cache/last_schedule_{$configKey}.txt";
         $lastTimeMessage = file_exists($cacheFileMessage) ? trim(file_get_contents($cacheFileMessage)) : '';
 
@@ -153,7 +178,7 @@ foreach ($groupTargets as $target) {
             $message .= "ℹ️ {$latestDateStr}";
         }
 
-        if ($filePutMessage !== $lastTimeMessage) {
+        if ($filePutMessage64 !== $lastTimeMessage) {
             $tgUrl = "https://api.telegram.org/bot{$config['token']}/sendMessage";
             file_get_contents($tgUrl . "?" . http_build_query([
                     'chat_id' => $config['chat_id'],
@@ -162,7 +187,7 @@ foreach ($groupTargets as $target) {
                     'disable_web_page_preview' => true
                 ]));
             logLine("Надіслано для {$configKey}");
-            file_put_contents($cacheFileMessage, $filePutMessage);
+            file_put_contents($cacheFileMessage, $filePutMessage64);
         } else {
             logLine("Оновлень немає для {$configKey}");
         }
