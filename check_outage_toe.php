@@ -109,7 +109,7 @@ if ($latestDateCreate !== '' && $latestDateCreate === $lastUpdateFromFile) {
     exit;
 }
 
-$weekDays = array('Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб');
+$weekDays = array('неділя', 'понеділок', 'вівторок', 'середа', 'четвер', "пʼятниця", 'субота');
 
 foreach ($groupTargets as $target) {
     $configKey = $target['config'];
