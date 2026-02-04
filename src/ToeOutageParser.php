@@ -10,7 +10,7 @@ final class ToeOutageParser
     {
         $url = "https://api-poweron.toe.com.ua/api/pw-accounts/building-groups?cityId={$cityId}";
 //        $data = ['buildingGroups' => [['chergGpv' => '1.2#Пд']]];
-        $data = self::fetchJson($url, array('Origin: https://toe-poweron.inneti.net'));
+        $data = self::fetchJson($url, array('Origin: https://poweron.toe.com.ua'));
         if (!isset($data['buildingGroups']) || !is_array($data['buildingGroups'])) {
             throw new RuntimeException('Unexpected building groups response');
         }
@@ -33,9 +33,9 @@ final class ToeOutageParser
             'Accept: application/json, text/plain, */*',
             'Accept-Language: uk-UA,uk;q=0.9',
             'Cache-Control: no-cache',
-            'Origin: https://toe-poweron.inneti.net',
+            'Origin: https://poweron.toe.com.ua',
             'Pragma: no-cache',
-            'Referer: https://toe-poweron.inneti.net/',
+            'Referer: https://poweron.toe.com.ua/',
             'X-debug-key: MzI5LzMxNDcvMzM=',
         );
 
