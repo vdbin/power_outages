@@ -7,11 +7,35 @@ function logLine(string $message): void
     echo "[{$ts}] {$message}\n";
 }
 
+function sendFatalTelegram(string $message): void
+{
+    global $fatalConfig;
+
+    if (!is_array($fatalConfig)) {
+        return;
+    }
+
+    if (empty($fatalConfig['token']) || empty($fatalConfig['chat_id'])) {
+        return;
+    }
+
+    $tgUrl = "https://api.telegram.org/bot{$fatalConfig['token']}/sendMessage";
+    file_get_contents($tgUrl . "?" . http_build_query([
+            'chat_id' => $fatalConfig['chat_id'],
+            'text' => $message,
+            'disable_web_page_preview' => true
+        ]));
+}
+
 function fatal(string $message, int $exitCode = 1): void
 {
     logLine($message);
+    sendFatalTelegram($message);
     exit($exitCode);
 }
+
+$fatalConfigPath = __DIR__ . '/config/fatal_telegram.local.php';
+$fatalConfig = file_exists($fatalConfigPath) ? require $fatalConfigPath : null;
 
 $groupsConfigPath = __DIR__ . '/config/groups.local.php';
 if (!file_exists($groupsConfigPath)) {

@@ -118,4 +118,5 @@ gen
 /package.xml
 /cache/
 /config/groups.local.php
+/config/fatal_telegram.local.php
 /logs/cron.log

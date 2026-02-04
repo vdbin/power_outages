@@ -1,0 +1,6 @@
+<?php
+
+return [
+    'token' => 'YOUR_TELEGRAM_BOT_TOKEN',
+    'chat_id' => 'YOUR_CHAT_ID'
+];
