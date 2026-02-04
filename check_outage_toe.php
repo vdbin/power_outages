@@ -173,7 +173,6 @@ foreach ($groupTargets as $target) {
         $message .= "ℹ️ Оновлено ({$titleTargetGroup})\n";
         if ($latestDateCreate !== '') {
             $latestDateObj = new DateTime($latestDateCreate);
-            $latestDateObj->setTimezone(new DateTimeZone('Europe/Kyiv'));
             $latestDateStr = $latestDateObj->format('d.m H:i');
             $message .= "ℹ️ {$latestDateStr}";
         }
