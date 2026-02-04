@@ -123,11 +123,10 @@ foreach ($groupTargets as $target) {
 
         $tzKyiv = new DateTimeZone('Europe/Kyiv');
         $cutoff = new DateTime('now', $tzKyiv);
-        $cutoff->modify('-2 hour');
+        $cutoff->modify('-1 hour');
 
         foreach ($schedulesByTarget[$configKey] as $dayTs => $intervals) {
             $dateObj = new DateTime("@{$dayTs}");
-            $dateObj->setTimezone($tzKyiv);
             $dayName = $weekDays[$dateObj->format('w')];
             $dateStr = $dateObj->format('d.m');
 
@@ -173,6 +172,7 @@ foreach ($groupTargets as $target) {
         $message .= "ℹ️ Оновлено ({$titleTargetGroup})\n";
         if ($latestDateCreate !== '') {
             $latestDateObj = new DateTime($latestDateCreate);
+//            $latestDateObj->setTimezone(new DateTimeZone('Europe/Kyiv'));
             $latestDateStr = $latestDateObj->format('d.m H:i');
             $message .= "ℹ️ {$latestDateStr}";
         }
