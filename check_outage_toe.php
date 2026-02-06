@@ -151,8 +151,9 @@ foreach ($groupTargets as $target) {
 
         foreach ($schedulesByTarget[$configKey] as $dayTs => $intervals) {
             $dateObj = new DateTime("@{$dayTs}");
-            $dayName = $weekDays[$dateObj->format('w')];
             $dateStr = $dateObj->format('d.m');
+            $dayName = $weekDays[$dateObj->format('w')];
+            $dateObj->setTimezone($tzKyiv);
 
             $filteredIntervals = array();
             $filePutMessage .= $dateStr;
