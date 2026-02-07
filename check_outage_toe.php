@@ -27,6 +27,19 @@ function sendFatalTelegram(string $message): void
         ]));
 }
 
+function normalizeChatIds($chatIdConfig): array
+{
+    if (is_array($chatIdConfig)) {
+        return array_values(array_filter($chatIdConfig, 'strlen'));
+    }
+
+    if (is_string($chatIdConfig) && $chatIdConfig !== '') {
+        return [$chatIdConfig];
+    }
+
+    return [];
+}
+
 function fatal(string $message, int $exitCode = 1): void
 {
     logLine($message);
@@ -203,12 +216,17 @@ foreach ($groupTargets as $target) {
 
         if ($filePutMessage64 !== $lastTimeMessage) {
             $tgUrl = "https://api.telegram.org/bot{$config['token']}/sendMessage";
-            file_get_contents($tgUrl . "?" . http_build_query([
-                    'chat_id' => $config['chat_id'],
-                    'text' => $message,
-                    'parse_mode' => 'HTML',
-                    'disable_web_page_preview' => true
-                ]));
+            $chatIds = normalizeChatIds($config['chat_id'] ?? null);
+
+            foreach ($chatIds as $chatId) {
+                file_get_contents($tgUrl . "?" . http_build_query([
+                        'chat_id' => $chatId,
+                        'text' => $message,
+                        'parse_mode' => 'HTML',
+                        'disable_web_page_preview' => true
+                    ]));
+            }
+
             logLine("Надіслано для {$configKey}");
             file_put_contents($cacheFileMessage, $filePutMessage64);
         } else {
