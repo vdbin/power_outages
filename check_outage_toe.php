@@ -172,7 +172,7 @@ foreach ($groupTargets as $target) {
             $filePutMessage .= $dateStr;
             foreach ($intervals as $interval) {
                 $filePutMessage .= $interval;
-                if (!preg_match('/^\s*\d{1,2}:\d{2}\s*-\s*(\d{1,2}):(\d{2})\s*$/u', $interval, $m)) {
+                if (!preg_match('/(\d{1,2}):(\d{2})\s*$/u', $interval, $m)) {
                     continue;
                 }
 
@@ -192,7 +192,7 @@ foreach ($groupTargets as $target) {
                 $message .= "🟢 Відключень не заплановано\n";
             } else {
                 foreach ($filteredIntervals as $interval) {
-                    $message .= "🔴 <b>{$interval}</b>\n";
+                    $message .= "🔴 {$interval}\n";
                 }
             }
             $message .= "\n";

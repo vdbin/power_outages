@@ -44,13 +44,19 @@ final class ToeOutageParser
 
     public static function parseOutageIntervalsFromTimes(array $times): array
     {
-        $halfHours = array_fill(0, 48, 'yes');
+        $halfHours = array_fill(0, 48, '0');
         foreach ($times as $time => $value) {
             $index = self::timeToHalfHourIndex($time);
             if ($index === null) {
                 continue;
             }
-            $halfHours[$index] = self::isOutageValue($value) ? 'no' : 'yes';
+            if (self::isOutageValue($value)) {
+                $halfHours[$index] = '1';
+                continue;
+            }
+            if (self::isSwitchValue($value)) {
+                $halfHours[$index] = '10';
+            }
         }
 
         return self::buildIntervalsFromHalfHours($halfHours);
@@ -59,30 +65,62 @@ final class ToeOutageParser
     private static function isOutageValue($value): bool
     {
         $value = (string)$value;
-        return $value === '1' || $value === '10';
+        return $value === '1';
+    }
+
+    private static function isSwitchValue($value): bool
+    {
+        $value = (string)$value;
+        return $value === '10';
     }
 
     private static function buildIntervalsFromHalfHours(array $halfHours): array
     {
         $intervals = array();
-        $inOutage = false;
-        $startIndex = 0;
         $count = count($halfHours);
+        $i = 0;
 
-        for ($i = 0; $i <= $count; $i++) {
-            $status = ($i < $count) ? $halfHours[$i] : 'yes';
-
-            if (!$inOutage && $status === 'no') {
-                $inOutage = true;
-                $startIndex = $i;
+        while ($i < $count) {
+            if ($halfHours[$i] !== '1') {
+                $i++;
+                continue;
             }
 
-            if ($inOutage && $status !== 'no') {
-                $endIndex = $i;
-                $intervals[] =
-                    OutageParser::formatHalfHourTime($startIndex) . ' - ' . OutageParser::formatHalfHourTime($endIndex);
-                $inOutage = false;
+            $startIndex = $i;
+            while ($i < $count && $halfHours[$i] === '1') {
+                $i++;
             }
+            $endIndex = $i;
+
+            $switchStartIndex = null;
+            $j = $startIndex - 1;
+            while ($j >= 0 && $halfHours[$j] === '10') {
+                $j--;
+            }
+            if ($j !== $startIndex - 1) {
+                $switchStartIndex = $j + 1;
+            }
+
+            $switchEndIndex = null;
+            $k = $endIndex;
+            while ($k < $count && $halfHours[$k] === '10') {
+                $k++;
+            }
+            if ($k !== $endIndex) {
+                $switchEndIndex = $k;
+            }
+
+            $startStr = OutageParser::formatHalfHourTime($startIndex);
+            if ($switchStartIndex !== null) {
+                $startStr = OutageParser::formatHalfHourTime($switchStartIndex) . '/' . $startStr;
+            }
+
+            $endStr = OutageParser::formatHalfHourTime($endIndex);
+            if ($switchEndIndex !== null) {
+                $endStr = $endStr . '/' . OutageParser::formatHalfHourTime($switchEndIndex);
+            }
+
+            $intervals[] = $startStr . ' - ' . $endStr;
         }
 
         return $intervals;
