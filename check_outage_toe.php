@@ -27,6 +27,27 @@ function sendFatalTelegram(string $message): void
         ]));
 }
 
+function shouldSendFatalOnce(string $message): bool
+{
+    $cacheFile = __DIR__ . '/cache/last_fatal_error_toe.txt';
+    $lastMessage = file_exists($cacheFile) ? trim(file_get_contents($cacheFile)) : '';
+
+    if ($lastMessage === $message) {
+        return false;
+    }
+
+    file_put_contents($cacheFile, $message);
+    return true;
+}
+
+function clearFatalOnceCache(): void
+{
+    $cacheFile = __DIR__ . '/cache/last_fatal_error_toe.txt';
+    if (file_exists($cacheFile)) {
+        unlink($cacheFile);
+    }
+}
+
 function normalizeChatIds($chatIdConfig): array
 {
     if (is_array($chatIdConfig)) {
@@ -43,7 +64,9 @@ function normalizeChatIds($chatIdConfig): array
 function fatal(string $message, int $exitCode = 1): void
 {
     logLine($message);
-    sendFatalTelegram($message);
+    if (shouldSendFatalOnce($message)) {
+        sendFatalTelegram($message);
+    }
     exit($exitCode);
 }
 
@@ -238,3 +261,5 @@ foreach ($groupTargets as $target) {
 if ($latestDateCreate !== '') {
     file_put_contents($cacheFile, $latestDateCreate);
 }
+
+clearFatalOnceCache();
