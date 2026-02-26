@@ -215,7 +215,7 @@ foreach ($groupTargets as $target) {
                 $message .= "🟢 Відключень не заплановано\n";
             } else {
                 foreach ($filteredIntervals as $interval) {
-                    $message .= "🔴 {$interval}\n";
+                    $message .= "🔴 <code>{$interval}</code>\n";
                 }
             }
             $message .= "\n";
@@ -228,14 +228,14 @@ foreach ($groupTargets as $target) {
         $cacheFileMessage = __DIR__ . "/cache/last_schedule_{$configKey}.txt";
         $lastTimeMessage = file_exists($cacheFileMessage) ? trim(file_get_contents($cacheFileMessage)) : '';
 
-        $message .= "🔗 <a href='https://poweron.toe.com.ua'>Сайт TOE</a>\n";
         $titleTargetGroup = str_replace('GPV', '', $configKey);
-        $message .= "ℹ️ Оновлено ({$titleTargetGroup})\n";
+        $message .= "<i>Оновлено ";
         if ($latestDateCreate !== '') {
             $latestDateObj = new DateTime($latestDateCreate);
             $latestDateStr = $latestDateObj->format('d.m H:i');
-            $message .= "ℹ️ {$latestDateStr}";
+            $message .= "<a href='https://poweron.toe.com.ua'>{$latestDateStr}</a>";
         }
+        $message .= "</i>";
 
         if ($filePutMessage64 !== $lastTimeMessage) {
             $tgUrl = "https://api.telegram.org/bot{$config['token']}/sendMessage";
