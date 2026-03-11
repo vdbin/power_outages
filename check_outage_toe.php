@@ -215,7 +215,7 @@ foreach ($groupTargets as $target) {
                 $message .= "🟢 Відключень не заплановано\n";
             } else {
                 foreach ($filteredIntervals as $interval) {
-                    $message .= "🔴 <code>{$interval}</code>\n";
+                    $message .= "🔴 {$interval}\n";
                 }
             }
             $message .= "\n";
